@@ -5,15 +5,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Autofac;
-using MyJetWallet.Sdk.GrpcMetrics;
 using MyJetWallet.Sdk.GrpcSchema;
 using MyJetWallet.Sdk.Service;
 using Prometheus;
-using ProtoBuf.Grpc.Server;
 using Service.MarketingBox.RegistrationAffiliateApi.Grpc;
 using Service.MarketingBox.RegistrationAffiliateApi.Modules;
 using Service.MarketingBox.RegistrationAffiliateApi.Services;
-using SimpleTrading.BaseMetrics;
 using SimpleTrading.ServiceStatusReporterConnector;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi
@@ -61,6 +58,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
         {
             builder.RegisterModule<SettingsModule>();
             builder.RegisterModule<ServiceModule>();
+            builder.RegisterModule<ClientModule>();
         }
     }
 }

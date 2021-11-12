@@ -14,7 +14,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
 {
     public class Program
     {
-        public const string SettingsFileName = ".myjetwallet";
+        public const string SettingsFileName = ".marketingboxregistrationaffiliateapi";
 
         public static SettingsModel Settings { get; private set; }
 
