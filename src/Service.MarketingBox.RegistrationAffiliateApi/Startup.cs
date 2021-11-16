@@ -23,6 +23,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
 
             services.AddHostedService<ApplicationLifetimeManager>();
 
+            services.AddControllers();
+
             services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
         }
 
@@ -46,6 +48,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                 endpoints.MapGrpcSchema<HelloService, IHelloService>();
 
                 endpoints.MapGrpcSchemaRegistry();
+                
+                endpoints.MapControllers();
 
                 endpoints.MapGet("/", async context =>
                 {

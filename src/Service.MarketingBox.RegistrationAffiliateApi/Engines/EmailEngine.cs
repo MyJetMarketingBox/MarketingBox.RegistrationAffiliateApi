@@ -1,3 +1,4 @@
+using System;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
@@ -8,26 +9,42 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Engines
     {
         private const string FromAddress = "somemail@gmail.com";
         private const string FromName = "Tom";
-        private const string EmailLogin = "somemail@gmail.com";
         private const string EmailPassword = "pass";
         private const string SmtpHost = "smtp.gmail.com";
         private const int SmtpPort = 587;
 
-        public async Task SendEmailAsync(string subject, string body)
+        private const string RegSubject = "Registration confirmation";
+        private const string RegBody = "Please follow the link to confirm your registration: ";
+
+        public async Task SendRegEmailAsync(string email, string token)
         {
+            
+            Console.WriteLine($"REG BODY : {GetRegBody(token)}");
+            return;
+            
             var from = new MailAddress(FromAddress, FromName);
-            var to = new MailAddress(EmailLogin);
+            var to = new MailAddress(email);
             var m = new MailMessage(from, to)
             {
-                Subject = subject, 
-                Body = body
+                Subject = RegSubject, 
+                Body = GetRegBody(token)
             };
-            var smtp = new SmtpClient("smtp.gmail.com", SmtpPort)
+            var smtp = new SmtpClient(SmtpHost, SmtpPort)
             {
-                Credentials = new NetworkCredential(EmailLogin, EmailPassword), 
+                Credentials = new NetworkCredential(FromAddress, EmailPassword), 
                 EnableSsl = true
             };
             await smtp.SendMailAsync(m);
+        }
+
+        private static string GetRegBody(string token)
+        {
+            return RegBody + GetConfirmLink(token);
+        }
+
+        private static string GetConfirmLink(string token)
+        {
+            return Program.Settings.RegistrationAffiliateApiUrl + $"/api/affiliate/confirmation/{token}";
         }
     }
 }
