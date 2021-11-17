@@ -1,10 +1,10 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using MarketingBox.Affiliate.Service.Grpc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
-using Service.MarketingBox.RegistrationAffiliateApi.Engines;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
 {
@@ -12,11 +12,11 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
     [Route("/api/[controller]")]
     public class AffiliateController : ControllerBase
     {
-        private readonly AffiliateEngine _affiliateEngine;
+        private readonly IAffiliateService _affiliateService;
 
-        public AffiliateController(AffiliateEngine affiliateEngine)
+        public AffiliateController(IAffiliateService affiliateService)
         {
-            _affiliateEngine = affiliateEngine;
+            _affiliateService = affiliateService;
         }
 
         [HttpPost("registration")]
@@ -24,15 +24,34 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         public async Task<ActionResult<RegistrationResponse>> Registration(
             [FromBody] RegistrationRequest request)
         {
+            var affiliateId = string.Empty;
+            var apiKey = string.Empty;
+
+            if (Request.Headers.TryGetValue("affiliate-id", out var value1))
+            {
+                affiliateId = value1;
+            }
+            if (Request.Headers.TryGetValue("api-key", out var value2))
+            {
+                apiKey = value2;
+            }
+
+            if (string.IsNullOrWhiteSpace(affiliateId) ||
+                string.IsNullOrWhiteSpace(apiKey))
+            {
+                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Master affiliate headers not found."});
+            }
+            
             if (string.IsNullOrWhiteSpace(request.Username) ||
                 string.IsNullOrWhiteSpace(request.Password) ||
-                string.IsNullOrWhiteSpace(request.Email))
+                string.IsNullOrWhiteSpace(request.Email) || 
+                string.IsNullOrWhiteSpace(request.LandingUrl))
             {
-                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Cannot process empty strings."});
+                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Cannot create affiliate with empty fields."});
             }
             try
             {
-                await _affiliateEngine.Registration(request.Username, request.Password, request.Email);
+                // TODO: call CreateSybAsync
             }
             catch (Exception ex)
             {
@@ -52,10 +71,28 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             }
             try
             {
-                var confirmation = await _affiliateEngine.Confirmation(token);
+                //ar cachedEntities = await _registrationDataWriter.GetAsync();
+                //ar registrationEntity = cachedEntities.FirstOrDefault(e => e.Registration.Token == token);
+            
+                //f (registrationEntity != null)
+                //
+                //   if (registrationEntity.Registration.RequestDate.Date != DateTime.UtcNow.Date)
+                //   {
+                //       _logger.LogInformation($"Deny confirmation for : {registrationEntity.Registration.Email}.");
+                //       return false;
+                //   }
                 
-                if (confirmation)
-                    return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
+                // 
+                
+                //   _logger.LogInformation($"Performed confirmation for : {registrationEntity.Registration.Email}.");
+                //   await _registrationDataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
+                //   return true;
+                //
+            
+                //logger.LogInformation($"Cannot find token :{token}.");
+                
+                //f (confirmation)
+                //   return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
             }
             catch (Exception ex)
             {
