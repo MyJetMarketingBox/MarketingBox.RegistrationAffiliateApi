@@ -6,6 +6,7 @@ using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
@@ -67,6 +68,9 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                     Sub = request.Sub
                 });
 
+                _logger.LogInformation("Get response from _affiliateService.CreateSubAsync: {responseJson}", 
+                    JsonConvert.SerializeObject(response));
+                
                 if (response.Affiliate != null &&
                     response.Error == null)
                 {
