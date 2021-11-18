@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using MarketingBox.Affiliate.Service.Domain.Models.Affiliates;
 using MarketingBox.Affiliate.Service.Grpc;
 using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
 using Microsoft.AspNetCore.Http;
@@ -115,11 +116,19 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 }
 
                 _logger.LogInformation($"Performed confirmation for : {registrationEntity.Entity.AffiliateId}.");
-                
-                // TODO: updateAsync 
+
+                var response = await _affiliateService.SetAffiliateStateAsync(new SetAffiliateStateRequest()
+                {
+                    AffiliateId = registrationEntity.Entity.AffiliateId,
+                    State = AffiliateState.Active
+                });
+
+                if (response.Error != null)
+                {
+                    return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = response.Error.Message});
+                }
                 
                 await _dataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
-                
                 return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
             }
             catch (Exception ex)
