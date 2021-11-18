@@ -2,8 +2,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using MarketingBox.Affiliate.Service.Grpc;
+using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
@@ -13,10 +15,13 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
     public class AffiliateController : ControllerBase
     {
         private readonly IAffiliateService _affiliateService;
+        private readonly ILogger<AffiliateController> _logger;
 
-        public AffiliateController(IAffiliateService affiliateService)
+        public AffiliateController(IAffiliateService affiliateService, 
+            ILogger<AffiliateController> logger)
         {
             _affiliateService = affiliateService;
+            _logger = logger;
         }
 
         [HttpPost("registration")]
@@ -51,13 +56,30 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             }
             try
             {
-                // TODO: call CreateSybAsync
+                var response = await _affiliateService.CreateSubAsync(new CreateSubRequest()
+                {
+                    Username = request.Username,
+                    Password = request.Password,
+                    Email = request.Email,
+                    LandingUrl = request.LandingUrl,
+                    MasterAffiliateId = affiliateId,
+                    MasterAffiliateApiKey = apiKey,
+                    Sub = request.Sub
+                });
+
+                if (response.Affiliate != null &&
+                    response.Error == null)
+                {
+                    return Ok(new RegistrationResponse(){Success = true});
+                }
+
+                return Problem(response.Error?.Message ?? "Cannot get error message.");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, ex.Message);
                 return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = ex.Message});
             }
-            return Ok(new RegistrationResponse(){Success = true});
         }
         
         [HttpGet("confirmation/{token}")]

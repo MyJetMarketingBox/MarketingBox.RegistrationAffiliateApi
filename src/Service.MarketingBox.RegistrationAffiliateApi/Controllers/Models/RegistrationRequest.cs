@@ -1,3 +1,5 @@
+using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
+
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models
 {
     public class RegistrationRequest
@@ -7,11 +9,5 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models
         public string Email { get; set; }
         public string LandingUrl { get; set; }
         public SubEntity[] Sub { get; set; }
-    }
-
-    public class SubEntity
-    {
-        public string SubName { get; set; }
-        public string SubValue { get; set; }
     }
 }
