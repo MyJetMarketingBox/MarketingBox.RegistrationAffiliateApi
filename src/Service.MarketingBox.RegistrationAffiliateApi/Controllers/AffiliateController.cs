@@ -1,12 +1,15 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 using MarketingBox.Affiliate.Service.Grpc;
 using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MyNoSqlServer.Abstractions;
 using Newtonsoft.Json;
+using Service.MarketingBox.Email.Service.Domain.Models;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
@@ -17,12 +20,15 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
     {
         private readonly IAffiliateService _affiliateService;
         private readonly ILogger<AffiliateController> _logger;
+        private readonly IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> _dataWriter;
 
         public AffiliateController(IAffiliateService affiliateService, 
-            ILogger<AffiliateController> logger)
+            ILogger<AffiliateController> logger, 
+            IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> dataWriter)
         {
             _affiliateService = affiliateService;
             _logger = logger;
+            _dataWriter = dataWriter;
         }
 
         [HttpPost("registration")]
@@ -97,34 +103,29 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             }
             try
             {
-                //ar cachedEntities = await _registrationDataWriter.GetAsync();
-                //ar registrationEntity = cachedEntities.FirstOrDefault(e => e.Registration.Token == token);
-            
-                //f (registrationEntity != null)
-                //
-                //   if (registrationEntity.Registration.RequestDate.Date != DateTime.UtcNow.Date)
-                //   {
-                //       _logger.LogInformation($"Deny confirmation for : {registrationEntity.Registration.Email}.");
-                //       return false;
-                //   }
+                var cachedEntities = await _dataWriter.GetAsync();
+                var registrationEntity = cachedEntities.FirstOrDefault(e => e.Entity.Token == token);
+
+                if (registrationEntity == null || 
+                    registrationEntity.Expires < DateTime.UtcNow)
+                {
+                    var error = $"Deny confirmation with token : {token}.";
+                    _logger.LogInformation(error);
+                    return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = error});
+                }
+
+                _logger.LogInformation($"Performed confirmation for : {registrationEntity.Entity.AffiliateId}.");
                 
-                // 
+                // TODO: updateAsync 
                 
-                //   _logger.LogInformation($"Performed confirmation for : {registrationEntity.Registration.Email}.");
-                //   await _registrationDataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
-                //   return true;
-                //
-            
-                //logger.LogInformation($"Cannot find token :{token}.");
+                await _dataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
                 
-                //f (confirmation)
-                //   return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
+                return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
             }
             catch (Exception ex)
             {
                 return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = ex.Message});
             }
-            return Ok(new ConfirmationResponse(){Success = false, ErrorMessage = "Cannot find token. Please try again."});
         }
     }
 }
