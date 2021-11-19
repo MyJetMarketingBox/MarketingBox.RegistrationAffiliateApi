@@ -19,9 +19,6 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Settings
 
         [YamlProperty("RegistrationAffiliateApi.MyNoSqlWriterUrl")]
         public string MyNoSqlWriterUrl { get; set; }
-        
-        [YamlProperty("RegistrationAffiliateApi.RegistrationAffiliateApiUrl")]
-        public string RegistrationAffiliateApiUrl { get; set; }
 
         [YamlProperty("RegistrationAffiliateApi.ConfirmationRedirectUrl")]
         public string ConfirmationRedirectUrl { get; set; }
