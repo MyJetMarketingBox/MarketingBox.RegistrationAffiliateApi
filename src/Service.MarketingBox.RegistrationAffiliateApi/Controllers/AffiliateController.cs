@@ -37,19 +37,19 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         public async Task<ActionResult<RegistrationResponse>> Registration(
             [FromBody] RegistrationRequest request)
         {
-            var affiliateId = string.Empty;
+            long affiliateId = 0;
             var apiKey = string.Empty;
 
             if (Request.Headers.TryGetValue("affiliate-id", out var value1))
             {
-                affiliateId = value1;
+                affiliateId = Convert.ToInt64(value1);
             }
             if (Request.Headers.TryGetValue("api-key", out var value2))
             {
                 apiKey = value2;
             }
 
-            if (string.IsNullOrWhiteSpace(affiliateId) ||
+            if (affiliateId == 0 ||
                 string.IsNullOrWhiteSpace(apiKey))
             {
                 return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Master affiliate headers not found."});
