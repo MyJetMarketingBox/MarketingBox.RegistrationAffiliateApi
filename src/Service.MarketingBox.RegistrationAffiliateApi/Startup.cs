@@ -111,7 +111,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
         
         protected virtual void ConfigureSwaggerGenOptions(SwaggerGenOptions options)
         {
-            options.SwaggerDoc("v1", new OpenApiInfo { Title = "MarketingBox.AuthApi", Version = "v1" });
+            options.SwaggerDoc("v1", new OpenApiInfo { Title = "MarketingBox.RegistrationAffiliateApi", Version = "v1" });
             options.EnableXmsEnumExtension();
             options.MakeResponseValueTypesRequired();
 
