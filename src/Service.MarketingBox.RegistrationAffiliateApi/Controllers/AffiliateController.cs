@@ -35,20 +35,10 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         [HttpPost("registration")]
         [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<RegistrationResponse>> Registration(
+            [Required, FromHeader(Name = "affiliate-id")] long affiliateId,
+            [Required, FromHeader(Name = "api-key")] string apiKey,
             [FromBody] RegistrationRequest request)
         {
-            long affiliateId = 0;
-            var apiKey = string.Empty;
-
-            if (Request.Headers.TryGetValue("affiliate-id", out var value1))
-            {
-                affiliateId = Convert.ToInt64(value1);
-            }
-            if (Request.Headers.TryGetValue("api-key", out var value2))
-            {
-                apiKey = value2;
-            }
-
             if (affiliateId == 0 ||
                 string.IsNullOrWhiteSpace(apiKey))
             {
