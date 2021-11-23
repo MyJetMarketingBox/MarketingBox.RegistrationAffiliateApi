@@ -16,15 +16,15 @@ using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
-    public class AffiliateController : ControllerBase
+    [Route("/api/affiliates")]
+    public class AffiliatesController : ControllerBase
     {
         private readonly IAffiliateService _affiliateService;
-        private readonly ILogger<AffiliateController> _logger;
+        private readonly ILogger<AffiliatesController> _logger;
         private readonly IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> _dataWriter;
 
-        public AffiliateController(IAffiliateService affiliateService, 
-            ILogger<AffiliateController> logger, 
+        public AffiliatesController(IAffiliateService affiliateService, 
+            ILogger<AffiliatesController> logger, 
             IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> dataWriter)
         {
             _affiliateService = affiliateService;
