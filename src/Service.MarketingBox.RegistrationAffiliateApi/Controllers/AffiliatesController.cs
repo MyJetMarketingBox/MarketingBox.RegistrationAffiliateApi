@@ -97,8 +97,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 var cachedEntities = await _dataWriter.GetAsync();
                 var registrationEntity = cachedEntities.FirstOrDefault(e => e.Entity.Token == token);
 
-                if (registrationEntity == null || 
-                    registrationEntity.Expires < DateTime.UtcNow)
+                if (registrationEntity?.Entity == null || 
+                    registrationEntity.Entity.ExpiredDate < DateTime.UtcNow)
                 {
                     var error = $"Deny confirmation with token : {token}.";
                     _logger.LogInformation(error);
