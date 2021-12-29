@@ -5,8 +5,4 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="MyNoSqlServer.DataWriter" Version="1.4.2" />
-  </ItemGroup>
-
 </Project>
