@@ -46,7 +46,6 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             }
             
             if (string.IsNullOrWhiteSpace(request.Username) ||
-                string.IsNullOrWhiteSpace(request.Password) ||
                 string.IsNullOrWhiteSpace(request.Email) || 
                 string.IsNullOrWhiteSpace(request.LandingUrl))
             {
