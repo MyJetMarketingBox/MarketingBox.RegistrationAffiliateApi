@@ -39,6 +39,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             [Required, FromHeader(Name = "api-key")] string apiKey,
             [FromBody] RegistrationRequest request)
         {
+            _logger.LogInformation($"AffiliatesController.Registration receive Haders: affiliateId - {affiliateId}, api-key - {apiKey}.");
             _logger.LogInformation($"AffiliatesController.Registration receive request: {JsonConvert.SerializeObject(request)}");
             
             if (affiliateId == 0 ||
