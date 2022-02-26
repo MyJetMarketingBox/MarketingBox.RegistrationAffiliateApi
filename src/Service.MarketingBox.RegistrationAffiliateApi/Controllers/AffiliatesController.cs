@@ -47,6 +47,9 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             [FromBody] RegistrationRequest request,
             [FromServices] IValidator<RegistrationRequest> validator)
         {
+            _logger.LogInformation($"AffiliatesController.Registration receive Haders: affiliateId - {affiliateId}, api-key - {apiKey}.");
+            _logger.LogInformation($"AffiliatesController.Registration receive request: {JsonConvert.SerializeObject(request)}");
+            
             try
             {
                 await validator.ValidateAndThrowAsync(request);
