@@ -1,4 +1,7 @@
 ﻿using Autofac;
+using FluentValidation;
+using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
+using Service.MarketingBox.RegistrationAffiliateApi.Validators;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Modules
 {
@@ -6,6 +9,10 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Modules
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder
+                .RegisterType<RegistrationRequestValidator>()
+                .As<IValidator<RegistrationRequest>>()
+                .SingleInstance();
         }
     }
 }
