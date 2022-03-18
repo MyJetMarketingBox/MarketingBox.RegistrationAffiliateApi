@@ -6,7 +6,7 @@ using AutoWrapper.Wrappers;
 using FluentValidation;
 using MarketingBox.Affiliate.Service.Domain.Models.Affiliates;
 using MarketingBox.Affiliate.Service.Grpc;
-using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
+using MarketingBox.Affiliate.Service.Grpc.Requests.Affiliates;
 using MarketingBox.Sdk.Common.Exceptions;
 using MarketingBox.Sdk.Common.Extensions;
 using MarketingBox.Sdk.Common.Models;
@@ -119,7 +119,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 var response = await _affiliateService.SetAffiliateStateAsync(new SetAffiliateStateRequest()
                 {
                     AffiliateId = registrationEntity.Entity.AffiliateId,
-                    State = AffiliateState.Active
+                    State = State.Active
                 });
                 
                 this.ProcessResult(response);

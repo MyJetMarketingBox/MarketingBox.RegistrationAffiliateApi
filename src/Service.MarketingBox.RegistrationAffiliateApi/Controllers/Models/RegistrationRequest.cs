@@ -1,4 +1,4 @@
-using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
+using MarketingBox.Affiliate.Service.Grpc.Requests.Affiliates;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models
 {
