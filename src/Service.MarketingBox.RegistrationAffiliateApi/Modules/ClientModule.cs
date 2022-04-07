@@ -1,7 +1,7 @@
 using Autofac;
 using MarketingBox.Affiliate.Service.Client;
+using MarketingBox.Email.Service.Domain.Models;
 using MyJetWallet.Sdk.NoSql;
-using Service.MarketingBox.Email.Service.Domain.Models;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Modules
 {
