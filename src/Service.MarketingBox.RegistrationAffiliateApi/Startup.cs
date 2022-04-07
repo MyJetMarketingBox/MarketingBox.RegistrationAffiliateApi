@@ -35,7 +35,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
             services.AddHostedService<ApplicationLifetimeManager>();
 
             services.AddControllers();
-            
+
             services.SetupSwaggerDocumentation();
 
             services.AddMyTelemetry("SP-", Program.Settings.ZipkinUrl);
@@ -55,7 +55,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                     IgnoreWrapForOkRequests = true
                 });
             app.UseRouting();
-            
+
 
             app.UseMetricServer();
 
@@ -68,35 +68,33 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                 endpoints.MapGrpcSchema<HelloService, IHelloService>();
 
                 endpoints.MapGrpcSchemaRegistry();
-                
+
                 endpoints.MapControllers();
 
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-                });
+                endpoints.MapGet("/",
+                    async context =>
+                    {
+                        await context.Response.WriteAsync(
+                            "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+                    });
             });
 
-            app.UseOpenApi(settings =>
-            {
-                settings.Path = $"/swagger/api/swagger.json";
-            });
+            app.UseOpenApi(settings => { settings.Path = $"/swagger/api/swagger.json"; });
 
             app.UseSwaggerUi3(settings =>
             {
                 settings.EnableTryItOut = true;
                 settings.Path = $"/swagger/api";
                 settings.DocumentPath = $"/swagger/api/swagger.json";
-
             });
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule<SettingsModule>();
-            builder.RegisterModule<ServiceModule>();
             builder.RegisterModule<ClientModule>();
         }
+
         public ISet<int> ModelStateDictionaryResponseCodes { get; }
     }
 }

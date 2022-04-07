@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoWrapper.Wrappers;
-using FluentValidation;
 using MarketingBox.Affiliate.Service.Domain.Models.Affiliates;
 using MarketingBox.Affiliate.Service.Grpc;
 using MarketingBox.Affiliate.Service.Grpc.Requests.Affiliates;
@@ -14,7 +13,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyNoSqlServer.Abstractions;
-using Newtonsoft.Json;
 using Service.MarketingBox.Email.Service.Domain.Models;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
 using ValidationError = MarketingBox.Sdk.Common.Models.ValidationError;
@@ -44,29 +42,25 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         public async Task<IActionResult> Registration(
             [Required, FromHeader(Name = "affiliate-id")] long affiliateId,
             [Required, FromHeader(Name = "api-key")] string apiKey,
-            [FromBody] RegistrationRequest request,
-            [FromServices] IValidator<RegistrationRequest> validator)
+            [FromBody] RegistrationRequest request)
         {
             _logger.LogInformation($"AffiliatesController.Registration receive Haders: affiliateId - {affiliateId}, api-key - {apiKey}.");
-            _logger.LogInformation($"AffiliatesController.Registration receive request: {JsonConvert.SerializeObject(request)}");
+            _logger.LogInformation("AffiliatesController.Registration receive request: {@Request}",request);
             
             try
             {
-                await validator.ValidateAndThrowAsync(request);
-                
                 var response = await _affiliateService.CreateSubAsync(new CreateSubRequest()
                 {
                     Username = request.Username,
                     Password = request.Password,
                     Email = request.Email,
-                    LandingUrl = request.LandingUrl,
                     MasterAffiliateId = affiliateId,
                     MasterAffiliateApiKey = apiKey,
+                    Phone = request.Phone,
                     Sub = request.Sub
                 });
 
-                _logger.LogInformation("Get response from _affiliateService.CreateSubAsync: {responseJson}", 
-                    JsonConvert.SerializeObject(response));
+                _logger.LogInformation("Get response from _affiliateService.CreateSubAsync: {@Reponse}", response);
 
                 return this.ProcessResult(response);
             }
