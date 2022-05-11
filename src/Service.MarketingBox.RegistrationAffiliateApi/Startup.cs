@@ -56,7 +56,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                 });
             app.UseRouting();
 
-
+            app.UseCors();
+            
             app.UseMetricServer();
 
             app.BindServicesTree(Assembly.GetExecutingAssembly());
