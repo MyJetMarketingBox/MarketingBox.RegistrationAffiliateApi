@@ -20,6 +20,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
 {
     public class Startup
     {
+        private const string CorsPolicy = "Develop";
+
         public Startup()
         {
             ModelStateDictionaryResponseCodes = new HashSet<int>();
@@ -31,6 +33,23 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsPolicy,
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins(
+                                "http://localhost:3000",
+                                "http://localhost:3001",
+                                "http://localhost:3002",
+                                "http://localhost:3003",
+                                "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
+                            .AllowCredentials()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
 
             services.AddHostedService<ApplicationLifetimeManager>();
 
@@ -56,8 +75,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                 });
             app.UseRouting();
 
-            app.UseCors();
-            
+            app.UseCors(CorsPolicy);
+
             app.UseMetricServer();
 
             app.BindServicesTree(Assembly.GetExecutingAssembly());
