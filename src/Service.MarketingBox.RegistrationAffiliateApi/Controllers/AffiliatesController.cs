@@ -2,16 +2,21 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoWrapper.Wrappers;
 using MarketingBox.Affiliate.Service.Domain.Models.Affiliates;
 using MarketingBox.Affiliate.Service.Grpc;
-using MarketingBox.Affiliate.Service.Grpc.Models.Affiliates.Requests;
+using MarketingBox.Affiliate.Service.Grpc.Requests.Affiliates;
+using MarketingBox.Email.Service.Domain.Models;
+using MarketingBox.Sdk.Common.Exceptions;
+using MarketingBox.Sdk.Common.Extensions;
+using MarketingBox.Sdk.Common.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MyNoSqlServer.Abstractions;
-using Newtonsoft.Json;
-using Service.MarketingBox.Email.Service.Domain.Models;
 using Service.MarketingBox.RegistrationAffiliateApi.Controllers.Models;
+using ValidationError = MarketingBox.Sdk.Common.Models.ValidationError;
+using ValidationException = FluentValidation.ValidationException;
 
 namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
 {
@@ -33,27 +38,15 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         }
 
         [HttpPost("registration")]
-        [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<RegistrationResponse>> Registration(
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Registration(
             [Required, FromHeader(Name = "affiliate-id")] long affiliateId,
             [Required, FromHeader(Name = "api-key")] string apiKey,
             [FromBody] RegistrationRequest request)
         {
             _logger.LogInformation($"AffiliatesController.Registration receive Haders: affiliateId - {affiliateId}, api-key - {apiKey}.");
-            _logger.LogInformation($"AffiliatesController.Registration receive request: {JsonConvert.SerializeObject(request)}");
+            _logger.LogInformation("AffiliatesController.Registration receive request: {@Request}",request);
             
-            if (affiliateId == 0 ||
-                string.IsNullOrWhiteSpace(apiKey))
-            {
-                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Master affiliate headers not found."});
-            }
-            
-            if (string.IsNullOrWhiteSpace(request.Username) ||
-                string.IsNullOrWhiteSpace(request.Email) || 
-                string.IsNullOrWhiteSpace(request.LandingUrl))
-            {
-                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = "Cannot create affiliate with empty fields."});
-            }
             try
             {
                 var response = await _affiliateService.CreateSubAsync(new CreateSubRequest()
@@ -61,38 +54,43 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                     Username = request.Username,
                     Password = request.Password,
                     Email = request.Email,
-                    LandingUrl = request.LandingUrl,
                     MasterAffiliateId = affiliateId,
                     MasterAffiliateApiKey = apiKey,
+                    Phone = request.Phone,
                     Sub = request.Sub
                 });
 
-                _logger.LogInformation("Get response from _affiliateService.CreateSubAsync: {responseJson}", 
-                    JsonConvert.SerializeObject(response));
-                
-                if (response.Affiliate != null &&
-                    response.Error == null)
-                {
-                    return Ok(new RegistrationResponse(){Success = true});
-                }
+                _logger.LogInformation("Get response from _affiliateService.CreateSubAsync: {@Reponse}", response);
 
-                return Problem(response.Error?.Message ?? "Cannot get error message.");
+                return this.ProcessResult(response);
             }
-            catch (Exception ex)
+            catch (ValidationException ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return BadRequest(new RegistrationResponse() {Success = false, ErrorMessage = ex.Message});
+                throw new ApiException(new Error
+                {
+                    ErrorMessage = BadRequestException.DefaultErrorMessage,
+                    ValidationErrors = ex.Errors.Select(
+                        x=> new ValidationError
+                        {
+                            ErrorMessage = x.ErrorMessage,
+                            ParameterName = x.PropertyName
+                        }).ToList()
+                });
             }
         }
         
         [HttpGet("confirmation/{token}")]
-        [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status200OK)]
-        public async Task<ActionResult<ConfirmationResponse>> Confirmation(
+        [ProducesResponseType(typeof(IActionResult), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Confirmation(
             [FromRoute, Required] string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
-                return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = "Cannot process empty token."});
+                throw new ApiException(new Error
+                {
+                    ErrorMessage = "Cannot process empty token."
+                });
             }
             try
             {
@@ -104,7 +102,10 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 {
                     var error = $"Deny confirmation with token : {token}.";
                     _logger.LogInformation(error);
-                    return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = error});
+                    throw new ApiException(new Error
+                    {
+                        ErrorMessage = error
+                    });
                 }
 
                 _logger.LogInformation($"Performed confirmation for : {registrationEntity.Entity.AffiliateId}.");
@@ -112,20 +113,18 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 var response = await _affiliateService.SetAffiliateStateAsync(new SetAffiliateStateRequest()
                 {
                     AffiliateId = registrationEntity.Entity.AffiliateId,
-                    State = AffiliateState.Active
+                    State = State.Active
                 });
-
-                if (response.Error != null)
-                {
-                    return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = response.Error.Message});
-                }
+                
+                this.ProcessResult(response);
                 
                 await _dataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
                 return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
             }
             catch (Exception ex)
             {
-                return BadRequest(new ConfirmationResponse() {Success = false, ErrorMessage = ex.Message});
+                _logger.LogError(ex, "Exception occured while getting confirmation.");
+                throw;
             }
         }
     }
