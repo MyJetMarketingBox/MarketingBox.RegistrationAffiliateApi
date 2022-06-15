@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Autofac;
 using AutoWrapper;
+using MarketingBox.Sdk.Common.Extensions;
 using MarketingBox.Sdk.Common.Models.RestApi;
 using MyJetWallet.Sdk.GrpcSchema;
 using MyJetWallet.Sdk.Service;
@@ -73,6 +74,9 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                     UseCustomSchema = true,
                     IgnoreWrapForOkRequests = true
                 });
+
+            app.UseExceptions();
+            
             app.UseRouting();
 
             app.UseCors(CorsPolicy);
