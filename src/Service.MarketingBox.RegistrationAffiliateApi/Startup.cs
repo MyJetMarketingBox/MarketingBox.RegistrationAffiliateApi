@@ -50,7 +50,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                                 "https://frontend.trfme.biz")
                             .AllowCredentials()
                             .AllowAnyHeader()
-                            .AllowAnyMethod();
+                            .AllowAnyMethod()
+                            .AllowCredentials();
                     });
             });
 
