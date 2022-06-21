@@ -34,24 +34,23 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
-            services.AddCors();
-            // services.AddCors(options =>
-            // {
-            //     options.AddPolicy(CorsPolicy,
-            //         builder =>
-            //         {
-            //             builder.AllowAnyOrigin()
-            //                 // .WithOrigins(
-            //                 //     "http://localhost:3000",
-            //                 //     "http://localhost:3001",
-            //                 //     "http://localhost:3002",
-            //                 //     "http://localhost:3003",
-            //                 //     "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
-            //                 .AllowCredentials()
-            //                 .WithHeaders("affiliate-id","api-key")
-            //                 .AllowAnyMethod();
-            //         });
-            // });
+            services.AddCors(options =>
+            {
+                options.AddPolicy(CorsPolicy,
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins(
+                                "http://localhost:3000",
+                                "http://localhost:3001",
+                                "http://localhost:3002",
+                                "http://localhost:3003",
+                                "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
+                            .AllowCredentials()
+                            .WithHeaders("affiliate-id","api-key")
+                            .AllowAnyMethod();
+                    });
+            });
 
             services.AddHostedService<ApplicationLifetimeManager>();
 
@@ -80,10 +79,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
             
             app.UseRouting();
             
-            app.UseCors(x => 
-                x.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .WithHeaders("affiliate-id","api-key","content-type"));
+            app.UseCors(CorsPolicy);
 
             app.UseMetricServer();
 
