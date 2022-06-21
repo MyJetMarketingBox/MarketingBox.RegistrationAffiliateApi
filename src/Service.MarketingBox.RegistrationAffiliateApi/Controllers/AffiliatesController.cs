@@ -29,7 +29,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
 
         public AffiliatesController(IAffiliateService affiliateService,
             ILogger<AffiliatesController> logger,
-            IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> dataWriter, 
+            IMyNoSqlServerDataWriter<AffiliateConfirmationNoSql> dataWriter,
             ITokensService tokensService)
         {
             _affiliateService = affiliateService;
@@ -51,7 +51,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
             _logger.LogInformation("AffiliatesController.Registration receive request: {@Request}", request);
 
             request.ValidateEntity();
-            
+
             var response = await _affiliateService.CreateSubAsync(new CreateSubRequest()
             {
                 Username = request.Username,
@@ -79,13 +79,13 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
         public async Task<IActionResult> Confirmation(
             [FromRoute, Required] string token)
         {
-            if (string.IsNullOrWhiteSpace(token))
-            {
-                throw new BadRequestException("Cannot process empty token");
-            }
-
             try
             {
+                if (string.IsNullOrWhiteSpace(token))
+                {
+                    throw new BadRequestException("Cannot process empty token");
+                }
+
                 var cachedEntities = await _dataWriter.GetAsync();
                 var registrationEntity = cachedEntities.FirstOrDefault(e => e.Entity.Token == token);
 
@@ -108,13 +108,14 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Controllers
                 this.ProcessResult(response);
 
                 await _dataWriter.DeleteAsync(registrationEntity.PartitionKey, registrationEntity.RowKey);
-                return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Exception occured while getting confirmation.");
-                throw;
+                return RedirectPermanent(Program.Settings.ConfirmationRedirectUrlFail);
             }
+
+            return RedirectPermanent(Program.Settings.ConfirmationRedirectUrl);
         }
     }
 }
