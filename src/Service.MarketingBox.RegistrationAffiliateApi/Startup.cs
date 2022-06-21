@@ -79,7 +79,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
             
             app.UseRouting();
 
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials());
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseMetricServer();
 
