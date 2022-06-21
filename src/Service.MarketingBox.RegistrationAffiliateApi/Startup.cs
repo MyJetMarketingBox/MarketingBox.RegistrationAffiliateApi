@@ -46,7 +46,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                                 "http://localhost:3002",
                                 "http://localhost:3003",
                                 "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000",
-                                "https://frontend-uat.trfme.biz/login")
+                                "https://frontend-uat.trfme.biz")
                             .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
