@@ -47,7 +47,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                             //     "http://localhost:3003",
                             //     "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
                             .AllowCredentials()
-                            .AllowAnyHeader()
+                            .WithHeaders("affiliate-id","api-key")
                             .AllowAnyMethod();
                     });
             });
