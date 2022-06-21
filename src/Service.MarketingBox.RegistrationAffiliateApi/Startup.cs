@@ -78,8 +78,8 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
             app.UseExceptions();
             
             app.UseRouting();
-            //
-            // app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().WithHeaders("affiliate-id","api-key","content-type"));
 
             app.UseMetricServer();
 
