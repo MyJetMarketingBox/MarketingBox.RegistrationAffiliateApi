@@ -34,6 +34,7 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.BindCodeFirstGrpc();
+            services.AddCors();
             // services.AddCors(options =>
             // {
             //     options.AddPolicy(CorsPolicy,
@@ -79,7 +80,10 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
             
             app.UseRouting();
             
-            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().WithHeaders("affiliate-id","api-key","content-type"));
+            app.UseCors(x => 
+                x.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .WithHeaders("affiliate-id","api-key","content-type"));
 
             app.UseMetricServer();
 
