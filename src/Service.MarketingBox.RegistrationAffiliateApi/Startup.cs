@@ -39,13 +39,13 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                 options.AddPolicy(CorsPolicy,
                     builder =>
                     {
-                        builder
-                            .WithOrigins(
-                                "http://localhost:3000",
-                                "http://localhost:3001",
-                                "http://localhost:3002",
-                                "http://localhost:3003",
-                                "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
+                        builder.AllowAnyOrigin()
+                            // .WithOrigins(
+                            //     "http://localhost:3000",
+                            //     "http://localhost:3001",
+                            //     "http://localhost:3002",
+                            //     "http://localhost:3003",
+                            //     "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
                             .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
