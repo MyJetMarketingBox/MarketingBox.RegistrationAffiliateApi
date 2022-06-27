@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Autofac;
 using AutoWrapper;
+using MarketingBox.Sdk.Common.Extensions;
 using MarketingBox.Sdk.Common.Models.RestApi;
 using MyJetWallet.Sdk.GrpcSchema;
 using MyJetWallet.Sdk.Service;
@@ -44,7 +45,9 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                                 "http://localhost:3001",
                                 "http://localhost:3002",
                                 "http://localhost:3003",
-                                "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000")
+                                "http://marketing-box-frontend.marketing-box.svc.cluster.local:3000",
+                                "https://frontend-uat.trfme.biz",
+                                "https://frontend.trfme.biz")
                             .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
@@ -73,8 +76,11 @@ namespace Service.MarketingBox.RegistrationAffiliateApi
                     UseCustomSchema = true,
                     IgnoreWrapForOkRequests = true
                 });
-            app.UseRouting();
 
+            app.UseExceptions();
+            
+            app.UseRouting();
+            
             app.UseCors(CorsPolicy);
 
             app.UseMetricServer();

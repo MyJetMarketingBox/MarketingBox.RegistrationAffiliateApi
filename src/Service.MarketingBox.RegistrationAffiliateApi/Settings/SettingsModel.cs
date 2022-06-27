@@ -22,5 +22,11 @@ namespace Service.MarketingBox.RegistrationAffiliateApi.Settings
 
         [YamlProperty("RegistrationAffiliateApi.ConfirmationRedirectUrl")]
         public string ConfirmationRedirectUrl { get; set; }
+
+        [YamlProperty("RegistrationAffiliateApi.ConfirmationRedirectUrlFail")]
+        public string ConfirmationRedirectUrlFail { get; set; }
+        
+        [YamlProperty("RegistrationAffiliateApi.AuthServiceUrl")]
+        public string AuthServiceUrl { get; set; }
     }
 }
